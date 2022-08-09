@@ -8,7 +8,6 @@ app.use(express.static("build"));
 app.use(express.json());
 app.use(cors());
 app.use(morgan("tiny"));
-app.use(morgan(":person"));
 
 let persons = [
   {
@@ -46,11 +45,7 @@ const randomNumber = () => {
   };
 };
 const randomId = randomNumber();
-const morgToken = () => {
-  return morgan.token("person", function (req, res) {
-    return "getting data";
-  });
-};
+
 const returnApiInfo = () => {
   const totalPeople = persons.length;
   console.log(totalPeople);
@@ -62,20 +57,16 @@ const returnApiInfo = () => {
 
 app.get("/", (request, response) => {
   response.send("<h1>PhoneBookApi</h1>");
-  morgToken();
 });
 app.get("/api/persons/", (request, response) => {
   response.json(persons);
-  morgToken();
 });
 app.get("/info/", (request, response) => {
   response.send(returnApiInfo());
-  morgToken();
 });
 app.get("/api/persons/:id", (request, response) => {
   const id = Number(request.params.id);
   const person = persons.find((person) => person.id === id);
-  morgToken();
 
   person ? response.json(person) : response.status(404).end();
 });
@@ -88,7 +79,6 @@ app.delete("/api/persons/:id", (request, response) => {
 app.post("/api/persons", (req, res) => {
   const body = req.body;
   if (!body.name || !body.number) {
-    morgToken();
     return res.status(400).json({
       error: "Phone Or Number Missing.",
     });
@@ -107,14 +97,6 @@ app.post("/api/persons", (req, res) => {
   };
 
   persons = persons.concat(personsInfo);
-  morgan.token("person", function (req, res) {
-    return [
-      `name: ${personsInfo.name}`,
-      `number: ${personsInfo.number}`,
-      `date: ${personsInfo.date}`,
-      `id: ${personsInfo.id}`,
-    ].join(" | ");
-  });
 
   res.json(personsInfo);
 });
