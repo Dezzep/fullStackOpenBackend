@@ -1,8 +1,11 @@
 const { response } = require("express");
 const express = require("express");
+const morgan = require("morgan");
 const app = express();
 
 app.use(express.json());
+app.use(morgan("tiny"));
+app.use(morgan(":person"));
 
 let persons = [
   {
@@ -92,7 +95,16 @@ app.post("/api/persons", (req, res) => {
   };
 
   persons = persons.concat(personsInfo);
-  console.log(personsInfo);
+  // console.log(personsInfo);
+  morgan.token("person", function (req, res) {
+    return [
+      `name: ${personsInfo.name}`,
+      `number: ${personsInfo.number}`,
+      `date: ${personsInfo.date}`,
+      `id: ${personsInfo.id}`,
+    ].join(" | ");
+  });
+
   res.json(personsInfo);
 });
 
