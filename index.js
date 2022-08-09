@@ -4,6 +4,7 @@ const morgan = require("morgan");
 const cors = require("cors");
 const app = express();
 
+app.use(express.static("build"));
 app.use(express.json());
 app.use(cors());
 app.use(morgan("tiny"));
@@ -33,7 +34,7 @@ let persons = [
 ];
 
 const randomNumber = () => {
-  const arrayOfNumbersGenerated = []; // closure, (private array).
+  const arrayOfNumbersGenerated = [1, 2, 3, 4]; // closure, (private array).
   return function randomNumberGenerator() {
     const rand = Math.floor(Math.random() * 10000);
     if (arrayOfNumbersGenerated.includes(rand)) {
