@@ -48,7 +48,6 @@ const randomId = randomNumber();
 
 const returnApiInfo = () => {
   const totalPeople = persons.length;
-  console.log(totalPeople);
   return `<div>
   <h3>Phonebook has info on ${totalPeople} people.<h3> 
   <h3>${new Date()}</h3>
