@@ -26,6 +26,8 @@ phonebookSchema.set("toJSON", {
   },
 });
 
+// terminal related below, keeping this due to it being part of an assignment.
+
 // const Person = mongoose.model("Person", phonebookSchema);
 
 // if (process.argv[4] === undefined) {
