@@ -10,20 +10,24 @@ app.use(express.static("build"));
 app.use(express.json());
 app.use(cors());
 
+// app.use(
+//   morgan(":method :url :status :res[content-length] - :response-time ms :type")
+// );
+// morgan.token("type", function (req, res) {
+//   return [JSON.stringify(req.body)];
+// });
+
 const errorHandler = (error, request, response, next) => {
-  console.error(error.message);
+  console.log(`ERROR NAME IS +____________________+${error.name}`);
 
   if (error.name === "CastError") {
     return response.status(400).send({ error: "malformatted id" });
+  } else if (error === "ValidationError") {
+    response.status(400).json({ error: "fuck" });
   }
-};
 
-app.use(
-  morgan(":method :url :status :res[content-length] - :response-time ms :type")
-);
-morgan.token("type", function (req, res) {
-  return [JSON.stringify(req.body)];
-});
+  next(error);
+};
 app.use(errorHandler);
 
 const returnApiInfo = (count) => {
@@ -65,14 +69,8 @@ app.delete("/api/people/:id", (request, response, next) => {
 });
 
 //post
-app.post("/api/people", (req, res) => {
+app.post("/api/people", (req, res, next) => {
   const body = req.body;
-  // already dealth with on the front end, but just incase.
-  if (!body.name || !body.number) {
-    return res.status(400).json({
-      error: "Phone Or Number Missing.",
-    });
-  }
 
   const person = new Person({
     name: body.name,
@@ -80,26 +78,34 @@ app.post("/api/people", (req, res) => {
     date: new Date(),
   });
 
-  person.save().then((savedPerson) => {
-    res.json(savedPerson);
-  });
+  person
+    .save()
+    .then((savedPerson) => {
+      res.json(savedPerson);
+    })
+    .catch((error) => next(error.message));
 });
 
 // put .. if there is already a name, change the number
 app.put("/api/people/:id", (request, response, next) => {
   const body = request.body;
-  const person = {
-    name: body.name,
-    number: body.number,
-    // creation date is not altered if number is swapped.
-  };
+  const { name, number } = request.body;
+  // const person = {
+  //   name: body.name,
+  //   number: body.number,
+  //   // creation date is not altered if number is swapped.
+  // };
 
-  Person.findByIdAndUpdate(request.params.id, person, { new: true })
+  Person.findByIdAndUpdate(
+    request.params.id,
+    { name, number },
+    { new: true, runValidators: true, context: "query" }
+  )
 
     .then((updatedPerson) => {
       response.json(updatedPerson);
     })
-    .catch((error) => next(error));
+    .catch((error) => next(error.message));
 });
 
 const PORT = process.env.PORT;

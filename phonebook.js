@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 
 const url = process.env.MONGODB_URI;
-console.log("connecting to", url);
+console.log("connecting to database...");
 
 mongoose
   .connect(url)
@@ -13,9 +13,26 @@ mongoose
   });
 
 const phonebookSchema = new mongoose.Schema({
-  name: String,
-  number: String,
-  date: Date,
+  name: {
+    type: String,
+    minLength: 2,
+    required: true,
+  },
+  number: {
+    type: String,
+    validate: {
+      validator: function (v) {
+        return /\d{3}-\d{3}-\d{4}/.test(v);
+      },
+      message: (props) =>
+        `${props.value} Improper Format --- Number should look like: 555-444-3333`,
+    },
+    required: [true, "Phone number must be formated like: 555-444-3333"],
+  },
+  date: {
+    type: Date,
+    required: true,
+  },
 });
 
 phonebookSchema.set("toJSON", {
