@@ -1,29 +1,28 @@
-require("dotenv").config();
-const { response } = require("express");
-const express = require("express");
-const morgan = require("morgan");
-const cors = require("cors");
-const Person = require("./phonebook");
+require('dotenv').config();
+const express = require('express');
+const morgan = require('morgan');
+const cors = require('cors');
+const Person = require('./phonebook');
 const app = express();
 
-app.use(express.static("build"));
+app.use(express.static('build'));
 app.use(express.json());
 app.use(cors());
 
-// app.use(
-//   morgan(":method :url :status :res[content-length] - :response-time ms :type")
-// );
-// morgan.token("type", function (req, res) {
-//   return [JSON.stringify(req.body)];
-// });
+app.use(
+  morgan(':method :url :status :res[content-length] - :response-time ms :type')
+);
+morgan.token('type', function (req) {
+  return [JSON.stringify(req.body)];
+});
 
 const errorHandler = (error, request, response, next) => {
   console.log(`ERROR NAME IS +____________________+${error.name}`);
 
-  if (error.name === "CastError") {
-    return response.status(400).send({ error: "malformatted id" });
-  } else if (error === "ValidationError") {
-    response.status(400).json({ error: "fuck" });
+  if (error.name === 'CastError') {
+    return response.status(400).send({ error: 'malformatted id' });
+  } else if (error.name === 'ValidationError') {
+    response.status(400).json({ error: error.message });
   }
 
   next(error);
@@ -38,20 +37,20 @@ const returnApiInfo = (count) => {
 };
 
 // get
-app.get("/", (request, response) => {
-  response.send("<h1>PhoneBookApi</h1>");
+app.get('/', (request, response) => {
+  response.send('<h1>PhoneBookApi</h1>');
 });
-app.get("/api/people/", (request, response) => {
+app.get('/api/people/', (request, response) => {
   Person.find({}).then((person) => {
     response.json(person);
   });
 });
-app.get("/info/", (request, response) => {
+app.get('/info/', (request, response) => {
   Person.find({}).then((person) => {
     response.send(returnApiInfo(person.length));
   });
 });
-app.get("/api/people/:id", (request, response, next) => {
+app.get('/api/people/:id', (request, response, next) => {
   Person.findById(request.params.id)
     .then((person) => {
       person ? response.json(person) : response.status(404).end();
@@ -60,16 +59,16 @@ app.get("/api/people/:id", (request, response, next) => {
 });
 
 //delete
-app.delete("/api/people/:id", (request, response, next) => {
+app.delete('/api/people/:id', (request, response, next) => {
   Person.findByIdAndRemove(request.params.id)
-    .then((result) => {
+    .then(() => {
       response.status(204).end();
     })
     .catch((error) => next(error));
 });
 
 //post
-app.post("/api/people", (req, res, next) => {
+app.post('/api/people', (req, res, next) => {
   const body = req.body;
 
   const person = new Person({
@@ -83,12 +82,11 @@ app.post("/api/people", (req, res, next) => {
     .then((savedPerson) => {
       res.json(savedPerson);
     })
-    .catch((error) => next(error.message));
+    .catch((error) => next(error));
 });
 
 // put .. if there is already a name, change the number
-app.put("/api/people/:id", (request, response, next) => {
-  const body = request.body;
+app.put('/api/people/:id', (request, response, next) => {
   const { name, number } = request.body;
   // const person = {
   //   name: body.name,
@@ -99,13 +97,13 @@ app.put("/api/people/:id", (request, response, next) => {
   Person.findByIdAndUpdate(
     request.params.id,
     { name, number },
-    { new: true, runValidators: true, context: "query" }
+    { new: true, runValidators: true, context: 'query' }
   )
 
     .then((updatedPerson) => {
       response.json(updatedPerson);
     })
-    .catch((error) => next(error.message));
+    .catch((error) => next(error));
 });
 
 const PORT = process.env.PORT;

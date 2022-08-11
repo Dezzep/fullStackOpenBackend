@@ -1,15 +1,15 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
 const url = process.env.MONGODB_URI;
-console.log("connecting to database...");
+console.log('connecting to database...');
 
 mongoose
   .connect(url)
-  .then((result) => {
-    console.log("connected to MongoDB");
+  .then(() => {
+    console.log('connected to MongoDB');
   })
   .catch((error) => {
-    console.log("error connecting to MongoDB:", error.message);
+    console.log('error connecting to MongoDB:', error.message);
   });
 
 const phonebookSchema = new mongoose.Schema({
@@ -27,7 +27,7 @@ const phonebookSchema = new mongoose.Schema({
       message: (props) =>
         `${props.value} Improper Format --- Number should look like: 555-444-3333`,
     },
-    required: [true, "Phone number must be formated like: 555-444-3333"],
+    required: [true, 'Phone number must be formated like: 555-444-3333'],
   },
   date: {
     type: Date,
@@ -35,7 +35,7 @@ const phonebookSchema = new mongoose.Schema({
   },
 });
 
-phonebookSchema.set("toJSON", {
+phonebookSchema.set('toJSON', {
   transform: (document, returnedObject) => {
     returnedObject.id = returnedObject._id.toString();
     delete returnedObject._id;
@@ -78,4 +78,4 @@ phonebookSchema.set("toJSON", {
 //     .catch((err) => console.log(err));
 // }
 
-module.exports = mongoose.model("Person", phonebookSchema);
+module.exports = mongoose.model('Person', phonebookSchema);
